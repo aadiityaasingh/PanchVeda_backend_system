@@ -1,8 +1,10 @@
 const express = require("express");
 
-const { createUser } = require("../controllers/user.controller.js");
+const { createUser, getUsers, toggleUserStatus } = require("../controllers/user.controller.js");
 const { createUserValidation } = require("../validation/user.validation.js");
 const validate = require("../middlewares/validate.js");
+const { protect } = require("../middlewares/auth.js");
+const authorize = require("../middlewares/authorize.js");
 
 const router = express.Router();
 
@@ -46,9 +48,14 @@ const router = express.Router();
  */
 router.post(
   "/",
+  protect,
+  authorize("admin"),
   createUserValidation,
   validate,
   createUser
 );
+
+router.get("/", protect, authorize("admin"), getUsers);
+router.patch("/:userId/status", protect, authorize("admin"), toggleUserStatus);
 
 module.exports = router;

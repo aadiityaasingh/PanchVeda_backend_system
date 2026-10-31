@@ -76,6 +76,15 @@ const getTherapyPlans = asyncHandler(async (req, res) => {
 
 });
 
+const getTherapyPlanById = asyncHandler(async (req, res) => {
+  const plan = await therapyPlanModel.findById(req.params.planId)
+    .populate("patient", "fullName phone")
+    .populate("therapies.therapy", "name category");
+
+  if (!plan) throw new AppError("Therapy plan not found", 404);
+  res.status(200).json({ success: true, data: plan });
+});
+
 
 const updatePlanStatus = async (planId) => {
 
@@ -101,5 +110,6 @@ const updatePlanStatus = async (planId) => {
 module.exports = {
   createTherapyPlan,
   getTherapyPlans,
+  getTherapyPlanById,
   updatePlanStatus
 };

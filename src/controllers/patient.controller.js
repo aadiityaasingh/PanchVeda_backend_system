@@ -58,6 +58,34 @@ const getPatients = asyncHandler(async (req, res) => {
 
 });
 
+const getPatientById = asyncHandler(async (req, res) => {
+  const patient = await patientModel.findById(req.params.patientId);
+  if (!patient) throw new AppError("Patient not found", 404);
+
+  res.status(200).json({ success: true, data: patient });
+});
+
+const updatePatient = asyncHandler(async (req, res) => {
+  const patient = await patientModel.findByIdAndUpdate(
+    req.params.patientId,
+    req.body,
+    { new: true, runValidators: true }
+  );
+  if (!patient) throw new AppError("Patient not found", 404);
+
+  res.status(200).json({ success: true, data: patient });
+});
+
+const deletePatient = asyncHandler(async (req, res) => {
+  const patient = await patientModel.findByIdAndUpdate(
+    req.params.patientId,
+    { isActive: false },
+    { new: true }
+  );
+  if (!patient) throw new AppError("Patient not found", 404);
+
+  res.status(200).json({ success: true, message: "Patient deactivated successfully" });
+});
 
 const getPatientHistory = asyncHandler(async (req, res) => {
 
@@ -71,11 +99,11 @@ const getPatientHistory = asyncHandler(async (req, res) => {
 
   const sessions = await sessionModel.find({
     therapyPlan: { $in: planIds }
-  }).populate("therapy", "name");
+  }).populate("therapy", "name category").sort({ sessionDate: 1 });
 
   const bills = await billModel.find({
     therapyPlan: { $in: planIds }
-  });
+  }).sort({ createdAt: -1 });
 
   res.status(200).json({
     success: true,
@@ -92,5 +120,8 @@ const getPatientHistory = asyncHandler(async (req, res) => {
 module.exports = {
   createPatient,
   getPatients,
+  getPatientById,
+  updatePatient,
+  deletePatient,
   getPatientHistory
 };

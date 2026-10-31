@@ -2,7 +2,10 @@ const express = require("express");
 
 const {
   createTherapy,
-  getTherapies
+  getTherapies,
+  getTherapyById,
+  updateTherapy,
+  deleteTherapy
 } = require("../controllers/therapy.controller.js");
 
 const {
@@ -72,5 +75,8 @@ router.post(
  *         description: List of therapies
  */
 router.get("/", getTherapies);
+router.get("/:therapyId", getTherapyById);
+router.put("/:therapyId", protect, authorize("admin"), updateTherapy);
+router.delete("/:therapyId", protect, authorize("admin"), deleteTherapy);
 
 module.exports = router;

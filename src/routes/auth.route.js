@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { login } = require("../controllers/auth.controller.js");
+const { login, getSetupStatus, setupInitialAdmin } = require("../controllers/auth.controller.js");
 
 const router = express.Router();
 
@@ -37,5 +37,7 @@ const router = express.Router();
  *         description: Invalid credentials
  */
 router.post("/login", login);
+router.get("/setup-status", getSetupStatus);
+router.post("/setup", setupInitialAdmin);
 
 module.exports = router;

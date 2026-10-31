@@ -2,7 +2,8 @@ const express = require("express");
 
 const {
   createTherapyPlan,
-  getTherapyPlans
+  getTherapyPlans,
+  getTherapyPlanById
 } = require("../controllers/therapyPlan.controller.js");
 
 const {
@@ -10,6 +11,8 @@ const {
 } = require("../validation/therapyPlan.validation.js");
 
 const validate = require("../middlewares/validate.js");
+const { protect } = require("../middlewares/auth.js");
+const authorize = require("../middlewares/authorize.js");
 
 const router = express.Router();
 
@@ -64,6 +67,8 @@ const router = express.Router();
  */
 router.post(
   "/",
+  protect,
+  authorize("admin", "doctor"),
   createTherapyPlanValidation,
   validate,
   createTherapyPlan
@@ -86,6 +91,7 @@ router.post(
  *       200:
  *         description: List of therapy plans
  */
-router.get("/", getTherapyPlans);
+router.get("/", protect, authorize("admin", "doctor", "therapist"), getTherapyPlans);
+router.get("/:planId", protect, authorize("admin", "doctor", "therapist"), getTherapyPlanById);
 
 module.exports = router;

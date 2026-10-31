@@ -56,7 +56,7 @@ router.get(
 router.get(
   "/top-therapies",
   protect,
-  authorize("admin"),
+  authorize("admin", "doctor"),
   getTopTherapies
 );
 
@@ -77,7 +77,7 @@ router.get(
 router.get(
   "/patient-count",
   protect,
-  authorize("admin"),
+  authorize("admin", "doctor"),
   getPatientStats
 );
 

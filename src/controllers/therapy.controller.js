@@ -36,7 +36,56 @@ const getTherapies = asyncHandler(async (req, res) => {
 
 });
 
+const getTherapyById = asyncHandler(async (req, res) => {
+  const therapy = await therapyModel.findById(req.params.therapyId);
+  if (!therapy) {
+    throw new AppError("Therapy not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: therapy
+  });
+});
+
+const updateTherapy = asyncHandler(async (req, res) => {
+  const therapy = await therapyModel.findByIdAndUpdate(
+    req.params.therapyId,
+    req.body,
+    { new: true, runValidators: true }
+  );
+
+  if (!therapy) {
+    throw new AppError("Therapy not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    data: therapy
+  });
+});
+
+const deleteTherapy = asyncHandler(async (req, res) => {
+  const therapy = await therapyModel.findByIdAndUpdate(
+    req.params.therapyId,
+    { isActive: false },
+    { new: true }
+  );
+
+  if (!therapy) {
+    throw new AppError("Therapy not found", 404);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Therapy deactivated successfully"
+  });
+});
+
 module.exports = {
   createTherapy,
-  getTherapies
+  getTherapies,
+  getTherapyById,
+  updateTherapy,
+  deleteTherapy
 };

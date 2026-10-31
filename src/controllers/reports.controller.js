@@ -50,7 +50,24 @@ const getTopTherapies = asyncHandler(async (req, res) => {
     },
 
     { $sort: { count: -1 } },
-    { $limit: 5 }
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: "therapies",
+        localField: "_id",
+        foreignField: "_id",
+        as: "therapy"
+      }
+    },
+    { $unwind: { path: "$therapy", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        _id: 1,
+        count: 1,
+        name: { $ifNull: ["$therapy.name", "Unknown Therapy"] },
+        category: { $ifNull: ["$therapy.category", "other"] }
+      }
+    }
   ]);
 
   res.status(200).json({

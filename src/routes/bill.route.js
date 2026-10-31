@@ -1,10 +1,12 @@
 const express = require("express");
-const { getBillByPlan, addPayment } = require("../controllers/bill.controller.js");
+const { getBills, getBillByPlan, addPayment } = require("../controllers/bill.controller.js");
 
 const { protect } = require("../middlewares/auth.js");
 const authorize = require("../middlewares/authorize.js");
 
 const router = express.Router();
+
+router.get("/", protect, authorize("admin", "doctor"), getBills);
 
 /**
  * @swagger
@@ -37,7 +39,7 @@ const router = express.Router();
 router.get(
   "/plan/:planId",
   protect,
-  authorize("admin"),
+  authorize("admin", "doctor"),
   getBillByPlan
 );
 

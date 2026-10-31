@@ -3,6 +3,9 @@ const express = require("express");
 const {
   createPatient,
   getPatients,
+  getPatientById,
+  updatePatient,
+  deletePatient,
   getPatientHistory
 } = require("../controllers/patient.controller.js");
 
@@ -12,6 +15,7 @@ const {
 
 const validate = require("../middlewares/validate.js");
 const { protect } = require("../middlewares/auth.js");
+const authorize = require("../middlewares/authorize.js");
 
 const router = express.Router();
 
@@ -39,8 +43,6 @@ const router = express.Router();
  *                 type: string
  *               phone:
  *                 type: string
- *               age:
- *                 type: number
  *               gender:
  *                 type: string
  *     responses:
@@ -49,6 +51,8 @@ const router = express.Router();
  */
 router.post(
   "/",
+  protect,
+  authorize("admin", "doctor"),
   createPatientValidation,
   validate,
   createPatient
@@ -64,7 +68,11 @@ router.post(
  *       200:
  *         description: List of patients
  */
-router.get("/", getPatients);
+router.get("/", protect, authorize("admin", "doctor", "therapist"), getPatients);
+
+router.get("/:patientId", protect, authorize("admin", "doctor", "therapist"), getPatientById);
+router.put("/:patientId", protect, authorize("admin", "doctor"), updatePatient);
+router.delete("/:patientId", protect, authorize("admin"), deletePatient);
 
 /**
  * @swagger
@@ -86,6 +94,7 @@ router.get("/", getPatients);
 router.get(
   "/:patientId/history",
   protect,
+  authorize("admin", "doctor", "therapist"),
   getPatientHistory
 );
 

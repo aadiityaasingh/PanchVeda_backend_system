@@ -19,10 +19,23 @@ const getBillByPlan = asyncHandler(async (req, res) => {
 
 });
 
+const getBills = asyncHandler(async (req, res) => {
+  const bills = await billModel.find()
+    .populate("patient", "fullName phone")
+    .populate("therapyPlan", "startDate endDate status")
+    .sort({ createdAt: -1 });
+
+  res.status(200).json({ success: true, data: bills });
+});
+
 
 const addPayment = asyncHandler(async (req, res) => {
 
-  const { amount } = req.body;
+  const amount = Number(req.body.amount);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    throw new AppError("Payment amount must be greater than zero", 400);
+  }
 
   const bill = await billModel.findById(req.params.billId);
 
@@ -30,11 +43,10 @@ const addPayment = asyncHandler(async (req, res) => {
     throw new AppError("Bill not found", 404);
   }
 
-  bill.paidAmount += amount;
+  bill.paidAmount = Math.min(bill.paidAmount + amount, bill.totalAmount);
 
   if (bill.paidAmount >= bill.totalAmount) {
     bill.status = "paid";
-    bill.paidAmount = bill.totalAmount;
   } else {
     bill.status = "partial";
   }
@@ -50,5 +62,6 @@ const addPayment = asyncHandler(async (req, res) => {
 
 module.exports = {
   getBillByPlan,
+  getBills,
   addPayment,
 };

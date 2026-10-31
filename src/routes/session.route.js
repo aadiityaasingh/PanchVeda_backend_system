@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   getSessionsPlan,
+  getSessions,
   updateSessionStatus
 } = require("../controllers/session.controller.js");
 
@@ -40,7 +41,8 @@ const router = express.Router();
  *       200:
  *         description: Sessions fetched successfully
  */
-router.get("/plan/:planId", getSessionsPlan);
+router.get("/", protect, authorize("admin", "doctor", "therapist"), getSessions);
+router.get("/plan/:planId", protect, authorize("admin", "doctor", "therapist"), getSessionsPlan);
 
 /**
  * @swagger
@@ -79,7 +81,7 @@ router.get("/plan/:planId", getSessionsPlan);
 router.patch(
   "/:sessionId/status",
   protect,
-  authorize("therapist"),
+  authorize("admin", "doctor", "therapist"),
   updateSessionStatus
 );
 

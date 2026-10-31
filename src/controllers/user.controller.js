@@ -24,7 +24,8 @@ const createUser = asyncHandler(async (req, res) => {
         id: user._id,
         fullName: user.fullName,
         email: user.email,
-        role: user.role
+        role: user.role,
+        isActive: user.isActive
       }
     });
 
@@ -39,6 +40,34 @@ const createUser = asyncHandler(async (req, res) => {
 
 });
 
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await userModel.find().select("fullName email role isActive createdAt").sort({ createdAt: -1 });
+  res.status(200).json({ success: true, data: users });
+});
+
+const toggleUserStatus = asyncHandler(async (req, res) => {
+  const user = await userModel.findById(req.params.userId);
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  user.isActive = !user.isActive;
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    data: {
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive
+    }
+  });
+});
+
 module.exports = {
   createUser,
+  getUsers,
+  toggleUserStatus
 };

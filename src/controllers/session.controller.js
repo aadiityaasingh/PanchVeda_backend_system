@@ -27,6 +27,22 @@ const getSessionsPlan = asyncHandler(async (req, res) => {
 
 });
 
+const getSessions = asyncHandler(async (req, res) => {
+  const filter = {};
+  if (req.query.date) {
+    const date = new Date(req.query.date);
+    filter.sessionDate = { $gte: date, $lt: new Date(date.getTime() + 86400000) };
+  }
+  if (req.query.status) filter.status = req.query.status;
+
+  const sessions = await sessionModel.find(filter)
+    .populate("therapy", "name category")
+    .populate({ path: "therapyPlan", populate: { path: "patient", select: "fullName phone" } })
+    .sort({ sessionDate: 1 });
+
+  res.status(200).json({ success: true, data: sessions });
+});
+
 
 const updateSessionStatus = asyncHandler(async (req, res) => {
 
@@ -58,5 +74,6 @@ const updateSessionStatus = asyncHandler(async (req, res) => {
 
 module.exports = {
   getSessionsPlan,
+  getSessions,
   updateSessionStatus,
 };

@@ -1,238 +1,256 @@
-# 🌿 Panchkarma Backend System
+# 🌿 Panchveda — Ayurvedic & Panchakarma Management API
 
-A clean, production-ready RESTful API for managing Panchkarma (Ayurvedic) wellness centers. Built with **Node.js**, **Express.js**, and **MongoDB** — it handles patients, therapies, therapy plans, sessions, billing, analytics reports, and secure user authentication with role-based access control.
+A secure, production-ready RESTful API engineered for authentic Ayurvedic & Panchakarma hospitals, wellness centers, and clinics. Built with **Node.js**, **Express.js v5**, and **MongoDB (Mongoose)**, Panchveda powers complete clinical operations: patient record management, procedure catalogs, multi-therapy regimen planning, automated daily session scheduling, clinical vitals logging, auto-generated billing, and financial analytics.
 
-> 🚀 **Live API:** [panchakarma-backend-system.onrender.com](https://panchakarma-backend-system.onrender.com)  
-> 📄 **Swagger Docs:** [panchakarma-backend-system.onrender.com/api-docs](https://panchakarma-backend-system.onrender.com/api-docs)
-
-
-
+---
 
 ## 🛠 Tech Stack
 
-| Layer            | Technology         |
-| ---------------- | ------------------ |
-| Runtime          | Node.js            |
-| Framework        | Express.js v5      |
-| Database         | MongoDB + Mongoose |
-| Authentication   | JWT (Bearer Token) |
-| Password Hashing | bcrypt             |
-| Validation       | express-validator  |
-| API Docs         | Swagger UI         |
-| Deployment       | Render             |
+| Layer | Technology | Description |
+| :--- | :--- | :--- |
+| **Runtime** | Node.js (v18+) | High-throughput JavaScript backend runtime |
+| **Framework** | Express.js v5 | Modern web framework with native Promise handling |
+| **Database** | MongoDB + Mongoose 9 | Object-document modeling with automated indexing & relationships |
+| **Authentication** | JWT (`jsonwebtoken`) | Bearer token-based stateless authentication |
+| **Security** | `bcrypt` | Salted password hashing (cost factor 10) |
+| **Validation** | `express-validator` | Comprehensive schema validation and sanitize middleware |
+| **Documentation** | Swagger / OpenAPI 3.0 | Interactive API testing documentation via Swagger UI |
+| **Testing** | Custom Integration Suite | 18 automated end-to-end integration tests |
 
+---
 
+## ✨ Core Features & Highlights
 
-## ✨ Features
+- 🔐 **3-Tier Role-Based Access Control (RBAC)**:
+  - `admin`: Clinic-wide oversight, staff user management, therapy catalog configuration, and financial revenue reports.
+  - `doctor`: Patient registration, medical history review, therapy plan prescription, and treatment monitoring.
+  - `therapist`: Treatment queue management, session administration, patient allergy/Prakriti review, and vitals recording (billing & revenue hidden).
+- 🌿 **Classical Panchakarma Auto-Seed**:
+  - Automatically seeds the 5 foundational *Pradhana Karmas* on database startup:
+    1. **Vamana** (Therapeutic Emesis)
+    2. **Virechana** (Purgation Therapy)
+    3. **Basti** (Medicated Enema)
+    4. **Nasya** (Nasal Administration)
+    5. **Raktamokshana** (Blood Purification)
+- 🧑‍⚕️ **Patient Records & History**: Complete demographic and Ayurvedic profile (Prakriti, dosha imbalances, allergies, chronic ailments) with unified timeline tracking.
+- 📋 **Automated Plan & Session Generation**: Prescribing a multi-therapy course automatically generates daily `Session` documents across the specified date range.
+- 🗓️ **Clinical Vitals & Lakshana Tracking**: Record Blood Pressure (BP), Pulse rate, Patient Tolerance (*Samyak / Heena / Atiyoga*), and *Pathya* (dietary compliance) upon completing each session.
+- 🧾 **Auto-Generated Invoices**: Plans automatically compute itemized bills with partial payment tracking, pending balance calculation, and payment receipts.
+- 📊 **Executive & Financial Analytics**: Real-time revenue aggregation (`$match` & `$group`), top prescribed therapies pipeline (`$lookup` on therapies), and patient volume metrics.
+- 🧪 **Automated E2E Test Suite**: Standalone verification script (`npm test`) validating 18 end-to-end flows in under 5 seconds.
 
-- 🔐 **Auth**          — JWT-based login with role-based access control (`admin`, `therapist`)
-- 👤 **Users**         — Create and manage staff accounts with assigned roles
-- 🧑‍⚕️ **Patients**      — Register patients and view full treatment history
-- 💆 **Therapies**     — Manage the Ayurvedic therapy catalog (admin only)
-- 📋 **Therapy Plans** — Assign multi-therapy plans to patients with date ranges and cost tracking
-- 🗓 **Sessions**       — Track individual therapy sessions; therapists update session status and notes
-- 🧾 **Bills**         — Auto-generated billing per therapy plan with payment recording (admin only)
-- 📊 **Reports**       — Revenue reports, top therapies, and patient statistics (admin only)
-- 🛡 **Middleware**    — Global error handler, request validation, JWT protect, role authorization, pagination
-
----------------------------------------------------------------------------------------------------------------------------------------
-
-## 📁 Project Structure
+---
 
 ## 📁 Project Structure
 
 ```
-panchkarma_backend_system/
+backend/
 ├── src/
 │   ├── config/
-│   │   ├── db.js                   # MongoDB connection
-│   │   └── swagger.js              # Swagger/OpenAPI configuration
+│   │   ├── db.js                   # MongoDB connection & auto-seed trigger
+│   │   └── swagger.js              # Swagger/OpenAPI 3.0 configuration
 │   ├── controllers/
-│   │   ├── auth.controller.js
-│   │   ├── bill.controller.js
-│   │   ├── patient.controller.js
-│   │   ├── reports.controller.js
-│   │   ├── session.controller.js
-│   │   ├── therapy.controller.js
-│   │   ├── therapyPlan.controller.js
-│   │   └── user.controller.js
+│   │   ├── auth.controller.js      # Login & setup status
+│   │   ├── bill.controller.js      # Plan invoices & payment recording
+│   │   ├── patient.controller.js   # CRUD & full clinical history
+│   │   ├── reports.controller.js   # Revenue, top therapies & patient metrics
+│   │   ├── session.controller.js   # Daily queue, plan sessions & vitals update
+│   │   ├── therapy.controller.js   # CRUD for therapy procedures
+│   │   ├── therapyPlan.controller.js # Multi-day plan prescription & session generator
+│   │   └── user.controller.js      # Staff user creation & status toggle
 │   ├── middlewares/
-│   │   ├── auth.js                 # JWT protect middleware
-│   │   ├── authorize.js            # Role-based access control
-│   │   ├── errorHandler.js         # Global error handler
-│   │   └── validate.js             # express-validator runner
+│   │   ├── auth.js                 # JWT verification (protect)
+│   │   ├── authorize.js            # Role-based authorization guard
+│   │   ├── errorHandler.js         # Centralized error handler
+│   │   └── validate.js             # express-validator result handler
 │   ├── models/
-│   │   ├── bill.model.js
-│   │   ├── patient.model.js
-│   │   ├── session.model.js
-│   │   ├── therapy.model.js
-│   │   ├── therapyPlan.model.js
-│   │   └── user.model.js
+│   │   ├── bill.model.js           # Invoices & payment logs
+│   │   ├── patient.model.js        # Demographics & medical history
+│   │   ├── session.model.js        # Daily treatments & clinical notes
+│   │   ├── therapy.model.js        # Procedures, categories & pricing
+│   │   ├── therapyPlan.model.js    # Prescribed regimen & date range
+│   │   └── user.model.js           # Staff credentials, roles & active status
 │   ├── routes/
-│   │   ├── auth.route.js
-│   │   ├── bill.route.js
-│   │   ├── patient.route.js
-│   │   ├── report.route.js
-│   │   ├── session.route.js
-│   │   ├── therapy.route.js
-│   │   ├── therapyPlan.route.js
-│   │   └── user.route.js
+│   │   ├── auth.route.js           # /api/auth
+│   │   ├── bill.route.js           # /api/bills
+│   │   ├── patient.route.js        # /api/patients
+│   │   ├── report.route.js         # /api/reports
+│   │   ├── session.route.js        # /api/sessions
+│   │   ├── therapy.route.js        # /api/therapies
+│   │   ├── therapyPlan.route.js    # /api/therapy-plans
+│   │   └── user.route.js           # /api/users
 │   ├── utils/
+│   │   ├── AppError.js             # Operational error class
+│   │   ├── asyncHandler.js         # Express async wrapper
+│   │   └── seedTherapies.js        # Classical Panchakarma auto-seeder
 │   ├── validation/
-│   │   ├── patient.validation.js
-│   │   ├── therapy.validation.js
-│   │   ├── therapyPlan.validation.js
-│   │   └── user.validation.js
-│   └── app.js                      # Express app, route mounting
-├── .env
-├── .gitignore
+│   │   ├── patient.validation.js   # Patient body validation rules
+│   │   ├── therapy.validation.js   # Therapy body validation rules
+│   │   ├── therapyPlan.validation.js # Plan array guard & validation rules
+│   │   └── user.validation.js      # User registration validation rules
+│   └── app.js                      # Express app setup, CORS, routes & docs
+├── seed-demo-data.js               # Comprehensive demo seeder (users, patients, plans, bills)
+├── test-suite.js                   # 18-step integration test runner
+├── .env.example                    # Sample environment variables
 ├── package.json
-└── server.js                       # Entry point
+└── server.js                       # Server entry point
 ```
 
-
-
----------------------------------------------------------------------------------------------------------------------------------------
+---
 
 ## ⚙️ Getting Started
 
 ### Prerequisites
-
-- Node.js v18+
-- MongoDB (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
-- npm
+- **Node.js** v18.0.0 or higher
+- **MongoDB** instance (local MongoDB server or MongoDB Atlas cluster)
+- **npm** or **yarn**
 
 ### Installation
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/aadiityaasingh/panchkarma_backend_system.git
-cd panchkarma_backend_system
+1. **Clone the repository and enter the backend directory**:
+   ```bash
+   git clone https://github.com/aadiityaasingh/panchkarma_backend_system.git
+   cd "Panchkarma system/backend"
+   ```
 
-# 2. Install dependencies
-npm install
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-# 3. Set up environment variables
-touch .env
-# Add your values (see below)
-
-# 4. Start the server
-npm start          # production
-npm run dev        # development with nodemon
-
-```
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-PORT=5000
-DB_URI=mongodb://localhost:27017/panchkarma
-JWT_SECRET=your_jwt_secret_key
-```
+3. **Configure Environment Variables**:
+   Create a `.env` file in the `backend/` root directory:
+   ```env
+   PORT=3000
+   DB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/panchveda?retryWrites=true&w=majority
+   JWT_SECRET=your_super_secret_jwt_key_here
+   ```
 
 
-## 📡 API Reference
+5. **Start the API Server**:
+   ```bash
+   # Development mode with nodemon auto-restart:
+   npm run dev
 
-**Base URL:** `https://panchakarma-backend-system.onrender.com`
+   # Production mode:
+   npm start
+   ```
 
-> 🔒 **[Protected]** — Requires `Authorization: Bearer <token>` header  
-> 🛡 **[admin]** / **[therapist]** — Requires that specific role
+   The server will start at `http://localhost:3000`.
+
+6. **Run Automated Test Suite**:
+   ```bash
+   npm test
+   ```
+   Executes 18 automated integration tests verifying database connection, authentication, permissions, CRUD flows, session status updates, and reports.
 
 ---
 
-### 🔐 Auth
+## 👥 Demo Staff Credentials
 
-| Method | Endpoint          | Access | Description                   |
-|--------|-------------------|--------|-------------------------------|
-| POST   | `/api/auth/login` | Public | Login and receive a JWT token |
+| Role | Name | Email | Password | Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **Admin** | Dr. Aditya Sharma | `admin@panchveda.com` | `admin123` | Full clinic management, staff users, billing, reports |
+| **Doctor** | Dr. Ananya Iyer | `dr.ananya@panchveda.com` | `doctor123` | Patients, medical plans, session review, therapies |
+| **Doctor** | Dr. Rajesh Kulkarni | `dr.rajesh@panchveda.com` | `doctor123` | Patients, medical plans, session review, therapies |
+| **Therapist**| Vikram Joshi | `vikram@panchveda.com` | `therapist123` | Clinical treatment queue, session vitals, patient history |
+| **Therapist**| Sneha Patil | `sneha@panchveda.com` | `therapist123` | Clinical treatment queue, session vitals, patient history |
+
+---
+
+## 📡 API Reference
+
+**Base URL**: `http://localhost:3000/api`  
+**Swagger UI**: `http://localhost:3000/api-docs`
+
+> 🔒 **Protected**: Requires header `Authorization: Bearer <JWT_TOKEN>`
+
+### 🔐 Authentication (`/api/auth`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/auth/login` | Public | Authenticate user and return JWT token |
+| `GET` | `/api/auth/setup-status` | Public | Check if initial admin account exists (`needsSetup: true/false`) |
 
 ```json
-// POST /api/auth/login
+// POST /api/auth/login Request Body
 {
-  "email": "admin@example.com",
-  "password": "password123"
+  "email": "admin@panchveda.com",
+  "password": "admin123"
 }
 ```
 
----------------------------------------------------------------------------------------------------------------------------------------
+---
 
-### 👤 Users
+### 👤 Staff User Management (`/api/users`)
 
-| Method | Endpoint     | Access | Description       |
-|--------|--------------|--------|-------------------|
-| POST   | `/api/users` | Public | Create a new user |
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/users` | 🔒 `admin` | List all staff accounts |
+| `POST` | `/api/users` | 🔒 `admin` (or First Setup) | Create staff user (`admin`, `doctor`, `therapist`) |
+| `PATCH`| `/api/users/:userId/status` | 🔒 `admin` | Toggle staff account active/inactive |
+
+---
+
+### 🧑‍⚕️ Patients (`/api/patients`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/patients` | 🔒 `admin`, `doctor`, `therapist` | List patients (supports search & pagination) |
+| `GET` | `/api/patients/:patientId` | 🔒 `admin`, `doctor`, `therapist` | Get patient profile details |
+| `POST` | `/api/patients` | 🔒 `admin`, `doctor` | Register a new patient |
+| `PUT` | `/api/patients/:patientId` | 🔒 `admin`, `doctor` | Update patient demographic & medical info |
+| `DELETE`| `/api/patients/:patientId` | 🔒 `admin` | Delete patient record |
+| `GET` | `/api/patients/:patientId/history`| 🔒 `admin`, `doctor`, `therapist` | Get complete clinical timeline, plans, sessions & bills |
 
 ```json
-// POST /api/users
+// POST /api/patients Request Body
 {
-  "fullName": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "role": "admin"
+  "fullName": "Meera Patel",
+  "phone": "9823456789",
+  "age": 42,
+  "gender": "female",
+  "address": "B-402 Shanti Vihar, Pune",
+  "medicalHistory": "Chronic cervical spondylosis, Vata-Pitta Prakriti",
+  "emergencyContact": "9823456780"
 }
 ```
 
----------------------------------------------------------------------------------------------------------------------------------------
+---
 
+### 💆 Therapies Catalog (`/api/therapies`)
 
-### 🧑‍⚕️ Patients
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/therapies` | 🔒 `admin`, `doctor`, `therapist` | List all therapies |
+| `GET` | `/api/therapies/:therapyId` | 🔒 `admin`, `doctor`, `therapist` | Get therapy procedure details |
+| `POST` | `/api/therapies` | 🔒 `admin` | Create new therapy procedure |
+| `PUT` | `/api/therapies/:therapyId` | 🔒 `admin` | Update therapy procedure, cost, precautions |
+| `DELETE`| `/api/therapies/:therapyId` | 🔒 `admin` | Remove therapy procedure |
 
-| Method | Endpoint                           | Access        | Description                            |
-|--------|------------------------------------|---------------|----------------------------------------|
-| POST   | `/api/patients`                    | Public        | Register a new patient                 |
-| GET    | `/api/patients`                    | Public        | Get all patients                       |
-| GET    | `/api/patients/:patientId/history` | 🔒 Protected  | Get full treatment history of a patient|
+Categories: `"vamana"` | `"virechana"` | `"basti"` | `"nasya"` | `"raktamokshana"`
 
-```json
-// POST /api/patients
-{
-  "fullName": "Ramesh Sharma",
-  "phone": "9876543210",
-  "age": 45,
-  "gender": "male"
-}
-```
+---
 
----------------------------------------------------------------------------------------------------------------------------------------
+### 📋 Therapy Plans (`/api/therapy-plans`)
 
-### 💆 Therapies
-
-| Method | Endpoint         | Access      | Description          |
-|--------|------------------|-------------|----------------------|
-| POST   | `/api/therapies` | 🔒 [admin]  | Create a new therapy |
-| GET | `/api/therapies`    | Public      | Get all therapies    |
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/therapy-plans` | 🔒 `admin`, `doctor`, `therapist` | List therapy plans (filter by `?status=`) |
+| `GET` | `/api/therapy-plans/:planId` | 🔒 `admin`, `doctor`, `therapist` | Get plan details with populated patient & therapies |
+| `POST` | `/api/therapy-plans` | 🔒 `admin`, `doctor` | Prescribe plan (auto-generates sessions & bill) |
 
 ```json
-// POST /api/therapies
+// POST /api/therapy-plans Request Body
 {
-  "name": "Abhyanga",
-  "category": "Massage",
-  "description": "Full body oil massage therapy"
-}
-```
-
----------------------------------------------------------------------------------------------------------------------------------------
-
-### 📋 Therapy Plans
-
-| Method | Endpoint              | Access | Description                                 |
-|--------|-----------------------|--------|---------------------------------------------|
-| POST   | `/api/therapy-plans`  | Public | Create a therapy plan for a patient         |
-| GET    | `/api/therapy-plans`  | Public | Get all therapy plans (filter by `?status=`)|
-
-```json
-// POST /api/therapy-plans
-{
-  "patient": "<patientId>",
-  "startDate": "2026-03-06",
-  "endDate": "2026-03-12",
+  "patient": "67a9bc...",
+  "startDate": "2026-11-01",
+  "endDate": "2026-11-07",
   "therapies": [
     {
-      "therapy": "<therapyId>",
-      "durationDays": 5,
-      "costPerDay": 500
+      "therapy": "67a9bd...",
+      "durationDays": 7,
+      "costPerDay": 1200
     }
   ]
 }
@@ -240,83 +258,59 @@ JWT_SECRET=your_jwt_secret_key
 
 ---
 
-### 🗓 Sessions
+### 🗓️ Daily Therapy Sessions (`/api/sessions`)
 
-| Method | Endpoint                          | Access          | Description                                                    |
-|--------|-----------------------------------|-----------------|----------------------------------------------------------------|
-| GET    | `/api/sessions/plan/:planId`      | Public          | Get sessions for a therapy plan (filter by `?date=YYYY-MM-DD`) |
-| PATCH  | `/api/sessions/:sessionId/status` | 🔒 [therapist] | Update session status and notes                                 |
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/sessions` | 🔒 `admin`, `doctor`, `therapist` | List sessions (filter by `?date=YYYY-MM-DD` and `?status=`) |
+| `GET` | `/api/sessions/plan/:planId` | 🔒 `admin`, `doctor`, `therapist` | List all scheduled sessions for a plan |
+| `PATCH`| `/api/sessions/:sessionId/status` | 🔒 `admin`, `doctor`, `therapist` | Update session outcome and record clinical vitals |
 
 ```json
-// PATCH /api/sessions/:sessionId/status
+// PATCH /api/sessions/:sessionId/status Request Body
 {
   "status": "completed",
-  "notes": "Patient responded well"
+  "notes": "[Vitals: BP: 120/80 | Pulse: 72 bpm | Tolerance: Well Tolerated (Samyak) | Pathya Advised: Yes] Patient completed full 45m Abhyanga. Warm sesame oil applied."
 }
 ```
 
----------------------------------------------------------------------------------------------------------------------------------------
+---
 
-### 🧾 Bills
+### 🧾 Invoices & Billing (`/api/bills`)
 
-| Method | Endpoint                 | Access      | Description                     |
-|--------|--------------------------|-------------|---------------------------------|
-| GET    | `/api/bills/plan/:planId`| 🔒 [admin] | Get bill for a therapy plan     |
-| PATCH  | `/api/bills/:billId/pay` | 🔒 [admin] | Record a payment against a bill |
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/bills/plan/:planId` | 🔒 `admin`, `doctor` | Retrieve itemized invoice for a therapy plan |
+| `PATCH`| `/api/bills/:billId/pay` | 🔒 `admin`, `doctor` | Record partial or full payment against bill |
 
 ```json
-// PATCH /api/bills/:billId/pay
+// PATCH /api/bills/:billId/pay Request Body
 {
-  "amount": 500
+  "amount": 3500
 }
 ```
 
----------------------------------------------------------------------------------------------------------------------------------------
+---
 
-### 📊 Reports
+### 📊 Clinic Analytics & Reports (`/api/reports`)
 
-| Method | Endpoint                    | Access      | Description                  |
-|--------|-----------------------------|-------------|------------------------------|
-| GET   | `/api/reports/revenue`       | 🔒 [admin] | Get overall revenue report   |
-| GET   | `/api/reports/top-therapies` | 🔒 [admin] | Get most-used therapies      |
-| GET   | `/api/reports/patient-count` | 🔒 [admin] | Get total patient statistics |
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/reports/revenue` | 🔒 `admin` | Financial summary: total revenue, total paid, unpaid balance |
+| `GET` | `/api/reports/top-therapies` | 🔒 `admin`, `doctor` | Aggregated rankings of top prescribed therapies |
+| `GET` | `/api/reports/patient-count` | 🔒 `admin`, `doctor` | Total registered patient count |
 
----------------------------------------------------------------------------------------------------------------------------------------
+---
 
+## 🔒 Security Best Practices Implemented
 
-## 🔐 Authentication Flow
+- Passwords salted and hashed with `bcrypt`.
+- Input validation and sanitization using `express-validator` on all mutation routes.
+- Stateless authentication using signed JSON Web Tokens (JWT).
+- Role-based authorization middleware enforcing least-privilege access.
+- Centralized `AppError` and `errorHandler` preventing database stack trace leaks in production.
+- Proper CORS configuration restricting unverified cross-origin origins.
 
-1. Create a user via `POST /api/users`
-2. Login via `POST /api/auth/login` — receive a JWT token
-3. Pass the token in all protected requests:
+---
 
-```
-Authorization: Bearer <your_token>
-```
-
----------------------------------------------------------------------------------------------------------------------------------------
-
-## 📖 Swagger Docs
-
-Interactive API documentation with request/response schemas is available at:
-
-```
-https://panchakarma-backend-system.onrender.com/api-docs
-```
-
----------------------------------------------------------------------------------------------------------------------------------------
-
-## 🤝 Contributing
-
-Contributions are welcome!
-
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m 'Add my feature'`
-4. Push to the branch: `git push origin feature/my-feature`
-5. Open a Pull Request
-
-
----------------------------------------------------------------------------------------------------------------------------------------
-
-> Built with 💚 for Ayurvedic wellness management
+> Built with 🌿 for authentic Ayurvedic healthcare and Panchakarma management.
