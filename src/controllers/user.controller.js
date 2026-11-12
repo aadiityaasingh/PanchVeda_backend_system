@@ -3,6 +3,14 @@ const bcrypt = require("bcrypt");
 const asyncHandler = require("../utils/asyncHandler.js");
 const AppError = require("../utils/AppError.js");
 
+const DEMO_EMAILS = [
+  "admin@panchveda.com",
+  "dr.ananya@panchveda.com",
+  "dr.rajesh@panchveda.com",
+  "vikram@panchveda.com",
+  "sneha@panchveda.com"
+];
+
 const createUser = asyncHandler(async (req, res) => {
 
   const { fullName, email, password, role } = req.body;
@@ -49,6 +57,10 @@ const toggleUserStatus = asyncHandler(async (req, res) => {
   const user = await userModel.findById(req.params.userId);
   if (!user) {
     throw new AppError("User not found", 404);
+  }
+
+  if (DEMO_EMAILS.includes(user.email.toLowerCase())) {
+    throw new AppError("Core demo staff accounts cannot be deactivated in demo mode", 403);
   }
 
   user.isActive = !user.isActive;

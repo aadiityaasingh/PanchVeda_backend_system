@@ -286,6 +286,45 @@ async function runTests() {
     }
     console.log("✓ Toggled doctor status to inactive");
 
+    // 14. Verify Demo Protections (Approach 1)
+    const demoUser = await User.findOne({ email: "admin@panchveda.com" });
+    if (demoUser) {
+      const demoToggleRes = await fetch(`${baseUrl}/api/users/${demoUser._id}/status`, {
+        method: "PATCH",
+        headers: authHeaders,
+      });
+      if (demoToggleRes.status !== 403) {
+        throw new Error(`Expected 403 when toggling demo user, got: ${demoToggleRes.status}`);
+      }
+      console.log("✓ Demo staff deactivation blocked with 403 Forbidden");
+    }
+
+    const TherapyModel = require("./src/models/therapy.model.js");
+    const coreTherapy = await TherapyModel.findOne({ name: "Basti Therapy" });
+    if (coreTherapy) {
+      const deleteCoreTherapyRes = await fetch(`${baseUrl}/api/therapies/${coreTherapy._id}`, {
+        method: "DELETE",
+        headers: authHeaders,
+      });
+      if (deleteCoreTherapyRes.status !== 403) {
+        throw new Error(`Expected 403 when deleting core classical therapy, got: ${deleteCoreTherapyRes.status}`);
+      }
+      console.log("✓ Core classical therapy deactivation blocked with 403 Forbidden");
+    }
+
+    const PatientModel = require("./src/models/patient.model.js");
+    const corePatient = await PatientModel.findOne({ phone: "9845012345" });
+    if (corePatient) {
+      const deleteCorePatientRes = await fetch(`${baseUrl}/api/patients/${corePatient._id}`, {
+        method: "DELETE",
+        headers: authHeaders,
+      });
+      if (deleteCorePatientRes.status !== 403) {
+        throw new Error(`Expected 403 when deleting core demo patient, got: ${deleteCorePatientRes.status}`);
+      }
+      console.log("✓ Core demo patient deactivation blocked with 403 Forbidden");
+    }
+
     console.log("\n==========================================");
     console.log("🎉 ALL SYSTEM FLOWS PASSED 100%!");
     console.log("==========================================\n");

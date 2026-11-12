@@ -7,6 +7,17 @@ const { getPagination } = require("../utils/pagination.js");
 const asyncHandler = require("../utils/asyncHandler.js");
 const AppError = require("../utils/AppError.js");
 
+const CORE_DEMO_PHONES = [
+  "9845012345",
+  "9886023456",
+  "9900034567",
+  "9741045678",
+  "9822056789",
+  "9945067890",
+  "9844078901",
+  "9980089012"
+];
+
 
 const createPatient = asyncHandler(async (req, res) => {
 
@@ -77,12 +88,15 @@ const updatePatient = asyncHandler(async (req, res) => {
 });
 
 const deletePatient = asyncHandler(async (req, res) => {
-  const patient = await patientModel.findByIdAndUpdate(
-    req.params.patientId,
-    { isActive: false },
-    { new: true }
-  );
+  const patient = await patientModel.findById(req.params.patientId);
   if (!patient) throw new AppError("Patient not found", 404);
+
+  if (CORE_DEMO_PHONES.includes(patient.phone)) {
+    throw new AppError("Core demo patient records cannot be deleted in preview mode", 403);
+  }
+
+  patient.isActive = false;
+  await patient.save();
 
   res.status(200).json({ success: true, message: "Patient deactivated successfully" });
 });
