@@ -29,6 +29,7 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
+// API routes (both /api/* and root /* aliases supported for flexible deployment)
 app.use("/api/patients", patientRoutes);
 app.use("/api/therapies", therapyRoutes);
 app.use("/api/therapy-plans", therapyPlanRoutes);
@@ -37,6 +38,15 @@ app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bills", billRoutes);
 app.use("/api/reports", reportRoutes);
+
+app.use("/patients", patientRoutes);
+app.use("/therapies", therapyRoutes);
+app.use("/therapy-plans", therapyPlanRoutes);
+app.use("/sessions", sessionRoutes);
+app.use("/users", userRoutes);
+app.use("/auth", authRoutes);
+app.use("/bills", billRoutes);
+app.use("/reports", reportRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use(errorHandler);
 
